@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractTexts, parseClasses } from "./extract";
+import { extractDivs, extractTexts, parseClasses } from "./extract";
 
 const SAMPLE = `
 <div class="flex-1 px-4 py-4 text-xl leading-tight">
@@ -22,6 +22,15 @@ describe("parseClasses", () => {
   });
   it("returns [] for blank input", () => {
     expect(parseClasses("   ")).toEqual([]);
+  });
+  it("strips a JSX className= prefix", () => {
+    expect(parseClasses('className="flex-1 px-4"')).toEqual(["flex-1", "px-4"]);
+  });
+  it("strips a whole pasted opening tag", () => {
+    expect(parseClasses('<div class="flex-1 px-4">')).toEqual(["flex-1", "px-4"]);
+  });
+  it("keeps a > inside a class", () => {
+    expect(parseClasses("[&>*]:p-4 a")).toEqual(["[&>*]:p-4", "a"]);
   });
 });
 
@@ -69,5 +78,23 @@ describe("extractTexts", () => {
 
   it("returns [] for an empty class list", () => {
     expect(extractTexts(`<div class="a">x</div>`, [])).toEqual([]);
+  });
+});
+
+describe("extractTexts text joining", () => {
+  it("separates text nodes split by <br> with a space", () => {
+    expect(extractTexts(`<div class="a">Line1<br>Line2</div>`, ["a"])).toEqual(["Line1 Line2"]);
+  });
+});
+
+describe("extractDivs", () => {
+  it("reports matched divs separately from items with text", () => {
+    const html = `
+      <div class="a"><span>child only</span></div>
+      <div class="a">Own text</div>`;
+    expect(extractDivs(html, ["a"])).toEqual({ matched: 2, items: ["Own text"] });
+  });
+  it("reports zero matches", () => {
+    expect(extractDivs(`<div class="b">x</div>`, ["a"])).toEqual({ matched: 0, items: [] });
   });
 });

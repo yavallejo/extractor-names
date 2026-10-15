@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { extractTexts, parseClasses } from "@/lib/extract";
+import { extractDivs, parseClasses } from "@/lib/extract";
+import { isHtmlContentType } from "@/lib/http";
 import { normalizeUrl } from "@/lib/url";
 
 const USER_AGENT =
@@ -32,15 +33,25 @@ export async function POST(req: Request) {
       cache: "no-store",
     });
     if (!res.ok) return fail(`The page responded with error ${res.status}.`, 502);
+    const contentType = res.headers.get("content-type");
+    if (!isHtmlContentType(contentType)) {
+      return fail(`The URL did not return an HTML page (got ${contentType}).`, 422);
+    }
     html = await res.text();
   } catch {
     return fail("Could not download the page (no response or timed out).", 502);
   }
 
-  const items = extractTexts(html, classes);
-  if (items.length === 0) {
+  const { matched, items } = extractDivs(html, classes);
+  if (matched === 0) {
     return fail(
       "No div with those classes was found. If the page loads its content with JavaScript, this tool will not see it.",
+      422,
+    );
+  }
+  if (items.length === 0) {
+    return fail(
+      `${matched} div(s) matched, but none has its own text (the text is inside a child element).`,
       422,
     );
   }
