@@ -1,69 +1,124 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+function CopyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-green-600">
+      <path d="M5 13l4 4L19 7" />
+    </svg>
+  );
+}
 
 export default function Home() {
+  const [url, setUrl] = useState("");
+  const [classes, setClasses] = useState("");
+  const [items, setItems] = useState<string[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState<number | "all" | null>(null);
+
+  async function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setItems(null);
+    try {
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url, classes }),
+      });
+      const data = await res.json();
+      if (!res.ok) setError(data.error ?? "Unknown error.");
+      else setItems(data.items);
+    } catch {
+      setError("Could not reach the server.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copy(text: string, key: number | "all") {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(key);
+      setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
+    } catch {
+      setError("Could not copy to the clipboard.");
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="mx-auto max-w-2xl p-6">
+      <h1 className="mb-4 text-xl font-semibold">Extractor</h1>
+
+      <form onSubmit={onSubmit} className="space-y-3">
+        <input
+          className="w-full rounded border border-gray-300 px-3 py-2"
+          placeholder="URL (https://...)"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          required
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+        <input
+          className="w-full rounded border border-gray-300 px-3 py-2"
+          placeholder="Classes (e.g. flex-1 px-4 py-4 text-xl leading-tight)"
+          value={classes}
+          onChange={(e) => setClasses(e.target.value)}
+          required
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+        >
+          {loading ? "Extracting..." : "Extract"}
+        </button>
+      </form>
+
+      {error && <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+
+      {items && (
+        <section className="mt-6">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              {items.length} {items.length === 1 ? "result" : "results"}
+            </p>
+            <button
+              type="button"
+              onClick={() => copy(items.join("\n"), "all")}
+              className="flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-sm"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              {copied === "all" ? <CheckIcon /> : <CopyIcon />} Copy all
+            </button>
+          </div>
+          <ul className="divide-y divide-gray-200 rounded border border-gray-200">
+            {items.map((item, i) => (
+              <li key={i} className="flex items-center justify-between gap-3 px-3 py-2">
+                <span>{item}</span>
+                <button
+                  type="button"
+                  aria-label={`Copy ${item}`}
+                  onClick={() => copy(item, i)}
+                  className="shrink-0 rounded p-1 text-gray-500 hover:bg-gray-100"
+                >
+                  {copied === i ? <CheckIcon /> : <CopyIcon />}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </main>
   );
 }
