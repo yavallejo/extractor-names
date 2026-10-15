@@ -26,7 +26,7 @@ must return only `27 Flux-coated Electrode`.
 
 - Local only for now. Vercel deployment comes later (out of scope).
 - Minimal Tailwind styling.
-- Server-rendered HTML only (verified: the example URL contains all 22 matching divs in the initial HTML). No headless browser.
+- Server-rendered HTML only (verified: the example URL contains all 22 matching divs (21 unique texts) in the initial HTML). No headless browser.
 - Everything is written in English: spec, plan, code, comments, UI copy and error messages.
 
 ## Stack
@@ -60,14 +60,14 @@ lib/*.test.ts             unit tests
 ## UI
 
 - Two inputs, an "Extract" button, a loading state and error messages.
-- Result counter ("22 results").
+- Result counter ("21 results").
 - List: each row shows the text and a copy icon; after copying, it switches to a check for ~1.5 s.
 - "Copy all" button: copies one item per line.
 
 ## Testing
 
 - Unit tests for `extractTexts`, `parseClasses` and `normalizeUrl`, using the example HTML: ignores the `<p>`, cleans whitespace, deduplicates, special-character classes, zero matches.
-- Manual test against the real URL: it must return 22 results.
+- Manual test against the real URL: it must return 21 results (the page has 22 matching divs, one name appears twice and is deduplicated).
 
 ## Out of scope
 
