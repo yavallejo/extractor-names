@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { extractDivs, parseClasses } from "@/lib/extract";
-import { isHtmlContentType } from "@/lib/http";
+import { BodyTooLargeError, decodeHtml, isHtmlContentType, readBodyCapped } from "@/lib/http";
 import { normalizeUrl } from "@/lib/url";
+
+const MAX_BODY_BYTES = 5 * 1024 * 1024;
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
@@ -13,7 +15,11 @@ function fail(error: string, status: number) {
 export async function POST(req: Request) {
   let body: { url?: unknown; classes?: unknown };
   try {
-    body = await req.json();
+    const parsed: unknown = await req.json();
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return fail("Invalid request.", 400);
+    }
+    body = parsed;
   } catch {
     return fail("Invalid request.", 400);
   }
@@ -37,8 +43,11 @@ export async function POST(req: Request) {
     if (!isHtmlContentType(contentType)) {
       return fail(`The URL did not return an HTML page (got ${contentType}).`, 422);
     }
-    html = await res.text();
-  } catch {
+    html = decodeHtml(await readBodyCapped(res, MAX_BODY_BYTES), contentType);
+  } catch (err) {
+    if (err instanceof BodyTooLargeError) {
+      return fail("The page is too large (the limit is 5 MB).", 422);
+    }
     return fail("Could not download the page (no response or timed out).", 502);
   }
 

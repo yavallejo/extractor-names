@@ -86,8 +86,9 @@ export default function Home() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ url, classes }),
       });
-      const data = await res.json();
-      if (!res.ok) setError(data.error ?? "Unknown error.");
+      // A crashed route can answer with a non-JSON body; keep the real status.
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) setError(data?.error ?? `The server responded with an error (${res.status}).`);
       else setItems(data.items);
     } catch {
       setError("Could not reach the server.");
