@@ -29,6 +29,26 @@ describe("parseClasses", () => {
   it("strips a whole pasted opening tag", () => {
     expect(parseClasses('<div class="flex-1 px-4">')).toEqual(["flex-1", "px-4"]);
   });
+  it("keeps quotes inside Tailwind arbitrary values", () => {
+    expect(parseClasses("content-['x'] bg-[url('/a.png')]")).toEqual([
+      "content-['x']",
+      "bg-[url('/a.png')]",
+    ]);
+    expect(parseClasses(`class="content-['x'] a"`)).toEqual(["content-['x']", "a"]);
+  });
+  it("strips backtick quotes", () => {
+    expect(parseClasses("`flex-1 px-4`")).toEqual(["flex-1", "px-4"]);
+  });
+  it("splits a compound CSS selector like .a.b", () => {
+    expect(parseClasses(".flex-1.px-4.py-4")).toEqual(["flex-1", "px-4", "py-4"]);
+  });
+  it("unescapes a CSS selector like .md\\:flex", () => {
+    expect(parseClasses(".md\\:flex .w-1\\/2")).toEqual(["md:flex", "w-1/2"]);
+    expect(parseClasses(".w-1\\.5")).toEqual(["w-1.5"]);
+  });
+  it("keeps dots inside a class that does not start with a dot", () => {
+    expect(parseClasses("w-1.5 a")).toEqual(["w-1.5", "a"]);
+  });
   it("keeps a > inside a class", () => {
     expect(parseClasses("[&>*]:p-4 a")).toEqual(["[&>*]:p-4", "a"]);
   });
