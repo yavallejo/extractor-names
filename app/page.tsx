@@ -60,7 +60,7 @@ function Spinner() {
 }
 
 const inputClass =
-  "block w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 " +
+  "block min-h-11 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-900 " +
   "placeholder:text-slate-400 shadow-sm outline-none transition " +
   "focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 " +
   "dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 " +
@@ -108,14 +108,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-indigo-50/80 via-slate-50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950">
-      <main className="mx-auto w-full min-w-0 max-w-2xl px-4 py-10 sm:py-16">
-        <header className="mb-8 flex items-center gap-3">
+    <div className="min-h-dvh bg-linear-to-b from-indigo-50/80 via-slate-50 to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950">
+      <main className="mx-auto w-full min-w-0 max-w-2xl px-4 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-12 lg:max-w-3xl lg:pt-16">
+        <header className="mb-6 flex items-center gap-3 sm:mb-8">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-600/30">
             <SparkIcon />
           </div>
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Extractor</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-white">Extractor</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Pull the text of every div with the classes you choose.
             </p>
@@ -124,7 +124,7 @@ export default function Home() {
 
         <form
           onSubmit={onSubmit}
-          className="space-y-4 rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/70"
+          className="space-y-4 rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm backdrop-blur sm:space-y-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900/70"
         >
           <div className="space-y-1.5">
             <label htmlFor="url" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -160,21 +160,23 @@ export default function Home() {
                   setUrl(EXAMPLE.url);
                   setClasses(EXAMPLE.classes);
                 }}
-                className="font-medium text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-400"
+                className="-my-1 inline-block py-1 font-medium text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-400"
               >
                 Try an example
               </button>
             </p>
           </div>
 
+          <div className="flex sm:justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-600/30 transition hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold sm:w-auto sm:min-w-40 text-white shadow-sm shadow-indigo-600/30 transition hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading && <Spinner />}
             {loading ? "Extracting..." : "Extract"}
           </button>
+          </div>
         </form>
 
         {error && (
@@ -196,8 +198,8 @@ export default function Home() {
         )}
 
         {items && (
-          <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-2xl border-b border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur sm:px-4 sm:py-3 dark:border-slate-800 dark:bg-slate-900/95">
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 <span className="mr-1.5 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
                   {items.length}
@@ -207,26 +209,26 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => copy(items.join("\n"), "all")}
-                className="flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 {copied === "all" ? <CheckIcon /> : <CopyIcon />}
                 {copied === "all" ? "Copied" : "Copy all"}
               </button>
             </div>
 
-            <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            <ul className="divide-y divide-slate-100 overflow-hidden rounded-b-2xl dark:divide-slate-800">
               {items.map((item, i) => (
                 <li
                   key={i}
-                  className="group flex items-center gap-3 px-4 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  className="group flex items-center gap-2 px-3 py-1.5 transition sm:gap-3 sm:px-4 sm:py-2 hover:bg-slate-50 dark:hover:bg-slate-800/60"
                 >
-                  <span className="w-6 shrink-0 text-right text-xs tabular-nums text-slate-400">{i + 1}</span>
+                  <span className="w-5 shrink-0 text-right text-xs tabular-nums text-slate-400 sm:w-6">{i + 1}</span>
                   <span className="min-w-0 flex-1 break-words text-sm text-slate-800 dark:text-slate-100">{item}</span>
                   <button
                     type="button"
                     aria-label={`Copy ${item}`}
                     onClick={() => copy(item, i)}
-                    className={`flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
+                    className={`flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1 rounded-lg px-2 text-xs font-medium transition ${
                       copied === i
                         ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
                         : "text-slate-500 hover:bg-slate-200/70 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"

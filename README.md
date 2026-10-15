@@ -5,9 +5,9 @@ Local tool: paste a page URL and the CSS classes of a `div`, get a list with the
 ## Run locally
 
 ```bash
-npm install
-npm run dev     # http://localhost:3000
-npm test
+yarn install
+yarn dev     # http://localhost:3000
+yarn test
 ```
 
 ## Pending (before deploying to Vercel)
