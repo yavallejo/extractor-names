@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Extractor",
-  description: "Extract the text of divs by class from any page",
+  title: "Pluck",
+  description: "Pull the text of any div, by class, from any page",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
